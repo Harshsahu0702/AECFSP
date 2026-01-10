@@ -5,7 +5,7 @@ const TeamPage = () => {
   const cursorRef = useRef(null);
 
  const teamMembers = [
-    { id: 1, name: 'Harsh Ray', image: new URL('../assets/1.jpg', import.meta.url).href },
+    { id: 1, name: 'Harsh Ray', image: new URL('../assets/h9.jpeg', import.meta.url).href },
     { id: 2, name: 'Sanjay Sharma', image: new URL('../assets/2.png', import.meta.url).href },
     { id: 3, name: 'Harsh Agarwalla', image: new URL('../assets/3.jpg', import.meta.url).href },
     { id: 4, name: 'Harsh Sahu', image: new URL('../assets/4.jpeg', import.meta.url).href },
