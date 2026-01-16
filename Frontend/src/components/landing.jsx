@@ -30,7 +30,6 @@ const Landing = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Loader Animation
       const tl = gsap.timeline({
         onComplete: () => setIsLoading(false)
       });
@@ -38,7 +37,7 @@ const Landing = () => {
       tl.to(loaderRef.current, {
         opacity: 0,
         duration: 0.8,
-        delay: 2.5,
+        delay: 1,
         ease: "power2.inOut",
         display: "none"
       });
@@ -61,7 +60,6 @@ const Landing = () => {
         "-=0.4"
       );
 
-      // Compact Orbital Animation
       gsap.to(".orbit-ring-1", {
         rotation: 360,
         duration: 20,
@@ -76,7 +74,6 @@ const Landing = () => {
         ease: "linear"
       });
 
-      // Floating logo
       gsap.to(".logo-image", {
         y: -5,
         duration: 2.5,
@@ -85,7 +82,6 @@ const Landing = () => {
         ease: "sine.inOut"
       });
 
-      // 3D Card Tilt Effect
       cardsRef.current.forEach((card) => {
         if (!card) return;
 
@@ -96,8 +92,7 @@ const Landing = () => {
           const centerX = rect.width / 2;
           const centerY = rect.height / 2;
 
-          // Calculate rotation based on mouse position
-          const rotateX = ((y - centerY) / centerY) * -15; // Max -15 to 15 deg
+          const rotateX = ((y - centerY) / centerY) * -15;
           const rotateY = ((x - centerX) / centerX) * 15;
 
           gsap.to(card, {
@@ -110,7 +105,6 @@ const Landing = () => {
             transformOrigin: "center"
           });
 
-          // Move internal elements for parallax
           const content = card.querySelector('.card-content-inner');
           const icon = card.querySelector('.icon-wrapper');
 
@@ -155,17 +149,14 @@ const Landing = () => {
     return () => ctx.revert();
   }, []);
 
-  // Modal Animation Effect
   useEffect(() => {
     if (activeRole && modalRef.current) {
       const ctx = gsap.context(() => {
-        // Overlay fade in
         gsap.fromTo(modalOverlayRef.current,
           { opacity: 0 },
           { opacity: 1, duration: 0.4, ease: "power2.out" }
         );
 
-        // Modal pop in with erratic/elastic crazy energy
         gsap.fromTo(modalContentRef.current,
           { scale: 0, rotate: -15, opacity: 0 },
           {
@@ -178,7 +169,6 @@ const Landing = () => {
           }
         );
 
-        // Stagger children
         gsap.fromTo(".modal-child",
           { y: 20, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.4, stagger: 0.1, delay: 0.3 }
@@ -200,7 +190,6 @@ const Landing = () => {
   const closeModal = () => {
     if (!modalRef.current) return;
 
-    // Animate out
     gsap.to(modalContentRef.current, {
       scale: 0.8,
       opacity: 0,
@@ -223,9 +212,8 @@ const Landing = () => {
       description: "Access learning materials & view attendance stats.",
       icon: <GraduationCap size={32} />,
       link: "#",
-      // Darker/More saturated colors to reduce lightness
       color: "rgba(224, 242, 254, 0.6)",
-      accent: "#0891b2", // Cyan-600
+      accent: "#0891b2",
       gradient: "linear-gradient(135deg, #a5f3fc 0%, #0891b2 100%)"
     },
     {
@@ -234,7 +222,7 @@ const Landing = () => {
       icon: <Presentation size={32} />,
       link: "#",
       color: "rgba(220, 252, 231, 0.6)",
-      accent: "#059669", // Emerald-600
+      accent: "#059669",
       gradient: "linear-gradient(135deg, #a7f3d0 0%, #059669 100%)"
     },
     {
@@ -243,17 +231,15 @@ const Landing = () => {
       icon: <ShieldCheck size={32} />,
       link: "#",
       color: "rgba(219, 234, 254, 0.6)",
-      accent: "#2563eb", // Blue-600
+      accent: "#2563eb",
       gradient: "linear-gradient(135deg, #bfdbfe 0%, #2563eb 100%)"
     }
   ];
 
   return (
     <div ref={containerRef} className="landing-container">
-      {/* Background Overlay */}
       <div className="bg-overlay-gradient" />
 
-      {/* Initial Loader */}
       <div ref={loaderRef} className="loader-overlay">
         <div className="loader-content">
           <div className="loader-ring"></div>
@@ -262,10 +248,8 @@ const Landing = () => {
         <h2 className="loader-text">Loading Portal</h2>
       </div>
 
-      {/* Main Content */}
-      <main className="main-content">
+      <main className="landing-main-content">
 
-        {/* Header Section - Compact */}
         <div className="header-section">
           <div className="header-flex">
             <div className="main-logo-container">
@@ -286,7 +270,6 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Cards Grid - Crazy 3D Style */}
         <div className="cards-grid">
           {roles.map((role, index) => (
             <div
@@ -321,13 +304,11 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Decorative Shine */}
               <div className="card-shine"></div>
             </div>
           ))}
         </div>
 
-        {/* Developer Button */}
         <div className="dev-button-container">
           <button
             onClick={handleDeveloperClick}
@@ -341,13 +322,11 @@ const Landing = () => {
           </button>
         </div>
 
-        {/* Footer */}
         <footer className="landing-footer">
           © 2025 AEC
         </footer>
       </main>
 
-      {/* LOGIN MODAL */}
       {activeRole && (
         <div ref={modalRef} className="modal-root">
           <div ref={modalOverlayRef} className="modal-overlay" onClick={closeModal} />
@@ -360,7 +339,6 @@ const Landing = () => {
               '--modal-gradient': activeRole.gradient
             }}
           >
-            {/* Modal Decorations */}
             <button className="modal-close-btn" onClick={closeModal}>
               <X size={20} />
             </button>
@@ -410,12 +388,11 @@ const Landing = () => {
 
       <style dangerouslySetInnerHTML={{
         __html: `
-        /* Import Font */
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap');
 
         :root {
-          --primary-color: #0891b2; /* Darker Cyan */
-          --dark-text: #020617; /* Very Dark Slate */
+          --primary-color: #0891b2; 
+          --dark-text: #020617; 
           --sub-text: #334155;
         }
 
@@ -423,7 +400,8 @@ const Landing = () => {
           position: relative;
           width: 100%;
           min-height: 100vh;
-          overflow: hidden;
+          display: flex;
+          flex-direction: column;
           background-image: url(${bgImage});
           background-size: cover;
           background-position: center;
@@ -431,9 +409,9 @@ const Landing = () => {
           font-family: 'Outfit', sans-serif;
           color: var(--dark-text);
           perspective: 2000px;
+          overflow-x: hidden; 
         }
 
-        /* Reduced brightness for the overlay */
         .bg-overlay-gradient {
           position: absolute;
           inset: 0;
@@ -442,7 +420,6 @@ const Landing = () => {
           z-index: 0;
         }
 
-        /* Loader Styles */
         .loader-overlay {
           position: fixed;
           inset: 0;
@@ -451,7 +428,7 @@ const Landing = () => {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: #f0fdfa; /* Mint Cream instead of straight white */
+          background: #f0fdfa;
         }
         .loader-content {
           position: relative;
@@ -479,18 +456,16 @@ const Landing = () => {
           letter-spacing: 0.2em;
         }
 
-        /* Layout & Header */
-        .main-content {
+        .landing-main-content {
           position: relative;
           z-index: 10;
           width: 100%;
-          height: 100vh;
+          flex: 1; 
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 1rem 2rem;
-          overflow-y: auto;
+          padding: 2rem 1rem;
         }
 
         .header-section {
@@ -517,7 +492,7 @@ const Landing = () => {
         .orbit-ring {
           position: absolute;
           border-radius: 50%;
-          border: 2px solid #0891b2; /* Thicker and solid color */
+          border: 2px solid #0891b2; 
           transform-origin: center;
           box-shadow: 0 0 10px rgba(8, 145, 178, 0.2);
         }
@@ -525,14 +500,14 @@ const Landing = () => {
         .orbit-ring-1 {
           width: 100px;
           height: 100px;
-          border: 2px dashed #27a6c9ff; /* Darker Cyan */
+          border: 2px dashed #27a6c9ff; 
           animation: spin 12s linear infinite;
         }
 
         .orbit-ring-2 {
           width: 130px;
           height: 130px;
-          border: 2px dotted #059669; /* Emerald */
+          border: 2px dotted #059669; 
           opacity: 0.8;
           animation: spin 18s reverse linear infinite;
         }
@@ -577,7 +552,6 @@ const Landing = () => {
           margin-top: 0.5rem;
         }
 
-        /* --- Cards with darker backdrop --- */
         .cards-grid {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
@@ -596,7 +570,7 @@ const Landing = () => {
 
         .role-card {
           position: relative;
-          background: rgba(255, 255, 255, 0.5); /* Less opaque white */
+          background: rgba(255, 255, 255, 0.5); 
           backdrop-filter: blur(25px);
           -webkit-backdrop-filter: blur(25px);
           border-radius: 30px;
@@ -785,7 +759,6 @@ const Landing = () => {
           pointer-events: none;
         }
 
-        /* --- MODAL STYLES --- */
         .modal-root {
           position: fixed;
           inset: 0;
