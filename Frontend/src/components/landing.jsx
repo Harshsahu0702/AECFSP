@@ -5,7 +5,11 @@ import {
   ShieldCheck,
   Code2,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  X,
+  User,
+  Lock,
+  ArrowLeft
 } from 'lucide-react';
 import { gsap } from 'gsap';
 import logo from '../assets/logo.png';
@@ -13,11 +17,16 @@ import bgImage from '../assets/bg.png';
 
 const Landing = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [activeRole, setActiveRole] = useState(null);
+
   const containerRef = useRef(null);
   const logoRef = useRef(null);
   const cardsRef = useRef([]);
   const textRef = useRef(null);
   const loaderRef = useRef(null);
+  const modalRef = useRef(null);
+  const modalOverlayRef = useRef(null);
+  const modalContentRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -146,8 +155,66 @@ const Landing = () => {
     return () => ctx.revert();
   }, []);
 
+  // Modal Animation Effect
+  useEffect(() => {
+    if (activeRole && modalRef.current) {
+      const ctx = gsap.context(() => {
+        // Overlay fade in
+        gsap.fromTo(modalOverlayRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.4, ease: "power2.out" }
+        );
+
+        // Modal pop in with erratic/elastic crazy energy
+        gsap.fromTo(modalContentRef.current,
+          { scale: 0, rotate: -15, opacity: 0 },
+          {
+            scale: 1,
+            rotate: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "elastic.out(1, 0.6)",
+            delay: 0.1
+          }
+        );
+
+        // Stagger children
+        gsap.fromTo(".modal-child",
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, stagger: 0.1, delay: 0.3 }
+        );
+
+      }, modalRef);
+      return () => ctx.revert();
+    }
+  }, [activeRole]);
+
   const handleDeveloperClick = () => {
     window.location.href = '/developers';
+  };
+
+  const handleCardClick = (role) => {
+    setActiveRole(role);
+  };
+
+  const closeModal = () => {
+    if (!modalRef.current) return;
+
+    // Animate out
+    gsap.to(modalContentRef.current, {
+      scale: 0.8,
+      opacity: 0,
+      rotate: 10,
+      duration: 0.3,
+      ease: "power2.in"
+    });
+
+    gsap.to(modalOverlayRef.current, {
+      opacity: 0,
+      duration: 0.3,
+      delay: 0.1,
+      onComplete: () => setActiveRole(null)
+    });
   };
 
   const roles = [
@@ -226,7 +293,7 @@ const Landing = () => {
               key={role.title}
               ref={el => cardsRef.current[index] = el}
               className="role-card"
-              onClick={() => window.location.href = role.link}
+              onClick={() => handleCardClick(role)}
               style={{
                 '--accent-color': role.accent,
                 '--card-gradient': role.gradient
@@ -279,6 +346,67 @@ const Landing = () => {
           © 2025 AEC
         </footer>
       </main>
+
+      {/* LOGIN MODAL */}
+      {activeRole && (
+        <div ref={modalRef} className="modal-root">
+          <div ref={modalOverlayRef} className="modal-overlay" onClick={closeModal} />
+
+          <div
+            ref={modalContentRef}
+            className="modal-container"
+            style={{
+              '--modal-accent': activeRole.accent,
+              '--modal-gradient': activeRole.gradient
+            }}
+          >
+            {/* Modal Decorations */}
+            <button className="modal-close-btn" onClick={closeModal}>
+              <X size={20} />
+            </button>
+            <div className="modal-glow-bg"></div>
+
+            <div className="modal-header modal-child">
+              <div className="modal-icon-badge">
+                {activeRole.icon}
+              </div>
+              <h2 className="modal-title">{activeRole.title} Login</h2>
+              <p className="modal-subtitle">Welcome back, please enter your details</p>
+            </div>
+
+            <form className="modal-form" onSubmit={(e) => e.preventDefault()}>
+              <div className="input-group modal-child">
+                <label>Email Address</label>
+                <div className="input-field-wrapper">
+                  <User size={18} className="input-icon" />
+                  <input type="email" placeholder="Enter your email" />
+                </div>
+              </div>
+
+              <div className="input-group modal-child">
+                <label>Password</label>
+                <div className="input-field-wrapper">
+                  <Lock size={18} className="input-icon" />
+                  <input type="password" placeholder="Enter your password" />
+                </div>
+              </div>
+
+              <div className="form-actions modal-child">
+                <a href="#" className="forgot-pass">Forgot Password?</a>
+              </div>
+
+              <button className="submit-btn modal-child">
+                Login
+              </button>
+
+              <div className="back-link modal-child" onClick={closeModal}>
+                <ArrowLeft size={14} />
+                <span>Back to Role Selection</span>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{
         __html: `
@@ -657,6 +785,197 @@ const Landing = () => {
           pointer-events: none;
         }
 
+        /* --- MODAL STYLES --- */
+        .modal-root {
+          position: fixed;
+          inset: 0;
+          z-index: 2000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+        }
+
+        .modal-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(8px);
+        }
+
+        .modal-container {
+          position: relative;
+          z-index: 10;
+          width: 100%;
+          max-width: 420px;
+          background: white;
+          border-radius: 32px;
+          padding: 2.5rem;
+          box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.5);
+          overflow: hidden;
+        }
+
+        /* Ambient Glow inside Modal */
+        .modal-glow-bg {
+          position: absolute;
+          top: -50px;
+          right: -50px;
+          width: 150px;
+          height: 150px;
+          background: var(--modal-accent);
+          filter: blur(60px);
+          opacity: 0.2;
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        .modal-close-btn {
+          position: absolute;
+          top: 1.5rem;
+          right: 1.5rem;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: none;
+          background: #f1f5f9;
+          border-radius: 50%;
+          color: #64748b;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          z-index: 20;
+        }
+        .modal-close-btn:hover {
+          background: #e2e8f0;
+          color: #1e293b;
+          transform: rotate(90deg);
+        }
+
+        .modal-header {
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+        .modal-icon-badge {
+          display: inline-flex;
+          padding: 1rem;
+          background: var(--modal-gradient);
+          border-radius: 20px;
+          color: white;
+          margin-bottom: 1rem;
+          box-shadow: 0 10px 25px -5px var(--modal-accent);
+        }
+        .modal-title {
+          font-size: 1.8rem;
+          font-weight: 800;
+          margin: 0;
+          color: var(--dark-text);
+        }
+        .modal-subtitle {
+          color: var(--sub-text);
+          font-size: 0.95rem;
+          margin-top: 0.5rem;
+        }
+
+        .modal-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+        }
+
+        .input-group label {
+          display: block;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--dark-text);
+          margin-bottom: 0.5rem;
+          margin-left: 0.5rem;
+        }
+
+        .input-field-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        
+        .input-icon {
+          position: absolute;
+          left: 1rem;
+          color: #94a3b8;
+          pointer-events: none;
+        }
+
+        .input-field-wrapper input {
+          width: 100%;
+          padding: 1rem 1rem 1rem 3rem;
+          background: #f8fafc;
+          border: 2px solid #e2e8f0;
+          border-radius: 16px;
+          font-family: inherit;
+          font-size: 1rem;
+          font-weight: 500;
+          color: var(--dark-text);
+          outline: none;
+          transition: all 0.3s ease;
+        }
+
+        .input-field-wrapper input::placeholder {
+          color: #cbd5e1;
+        }
+
+        .input-field-wrapper input:focus {
+          border-color: var(--modal-accent);
+          background: white;
+          box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 0 2px var(--modal-accent);
+        }
+
+        .form-actions {
+          display: flex;
+          justify-content: flex-end;
+          font-size: 0.9rem;
+        }
+        .forgot-pass {
+          color: var(--modal-accent);
+          font-weight: 600;
+          text-decoration: none;
+        }
+
+        .submit-btn {
+          width: 100%;
+          padding: 1rem;
+          background: var(--dark-text);
+          color: white;
+          font-family: inherit;
+          font-weight: 700;
+          font-size: 1rem;
+          border: none;
+          border-radius: 16px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-top: 0.5rem;
+        }
+        .submit-btn:hover {
+          background: var(--modal-accent);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px -5px var(--modal-accent);
+        }
+
+        .back-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          color: var(--sub-text);
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          margin-top: 1rem;
+          transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--dark-text); }
+
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse {
           0%, 100% { transform: scale(1); opacity: 1; }
@@ -668,12 +987,13 @@ const Landing = () => {
           .main-content { padding: 1rem; }
           .cards-grid { gap: 1.5rem; }
           .role-card { min-height: 300px; }
+          .modal-container { padding: 1.5rem; }
         }
         
         @media (min-height: 800px) {
            .main-content { justify-content: center; }
         }
-      `}} />
+        `}} />
     </div>
   );
 };
